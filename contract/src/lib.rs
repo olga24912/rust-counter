@@ -13,6 +13,8 @@ use near_sdk::{env, near_bindgen, Promise};
 
 near_sdk::setup_alloc!();
 
+const MIN_DEPOSIT: u128 = 1_000_000_000_000_000_000_000_000;
+
 // add the following attributes to prepare your code for serialization and invocation on the blockchain
 // More built-in Rust attributes here: https://doc.rust-lang.org/reference/attributes.html#built-in-attributes-index
 #[near_bindgen]
@@ -60,11 +62,20 @@ impl Counter {
         after_counter_change();
     }*/
 
+    #[payable]
     pub fn add(&mut self, op: char, param: i8) {
        match op {
            '+' => self.val += param,
            '-' => self.val += param,
            _ => env::log("Wrong operation".as_bytes()),
+       }
+
+       let amount = env::attached_deposit();
+       assert!(amount >= MIN_DEPOSIT, "Not enought money amount={}, min={}", amount, MIN_DEPOSIT);
+
+       let mon_back: u128 = amount - MIN_DEPOSIT;
+       if mon_back > 0 {
+        Promise::new(env::predecessor_account_id()).transfer(mon_back);
        }
 
        env::log("ADD op!".as_bytes());

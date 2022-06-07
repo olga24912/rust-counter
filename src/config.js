@@ -1,4 +1,4 @@
-const CONTRACT_NAME = 'olga24912.testnet' //process.env.CONTRACT_NAME || 'asdf.test'; /* TODO: change this to your account */
+const CONTRACT_NAME = process.env.CONTRACT_NAME || 'asdf.test'; /* TODO: change this to your account */
 
 function getConfig (env) {
   switch (env) {

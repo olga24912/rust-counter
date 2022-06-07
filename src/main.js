@@ -72,13 +72,15 @@ document.querySelector('#plus').addEventListener('click', () => {
   document.querySelectorAll('button').forEach(button => button.disabled = true);
   document.querySelector('#show').classList.replace('number','loader');
   document.querySelector('#show').innerText = '';
-  contract.add({"op": "+", "param": 10}).then(updateUI);
+  let amount = document.getElementById("amount").value;
+  let amount_prep = nearAPI.utils.format.parseNearAmount(amount);
+  contract.add({"op": "+", "param": 10}, "", amount_prep).then(updateUI);
 });
 document.querySelector('#minus').addEventListener('click', () => {
   document.querySelectorAll('button').forEach(button => button.disabled = true);
   document.querySelector('#show').classList.replace('number','loader');
   document.querySelector('#show').innerText = '';
-  contract.add({"op": "-", "param": 4}).then(updateUI);
+  contract.add({"op": "-", "param": 4}, "", "1500000000000000000000000").then(updateUI);
 });
 document.querySelector('#a').addEventListener('click', () => {
   document.querySelectorAll('button').forEach(button => button.disabled = true);
