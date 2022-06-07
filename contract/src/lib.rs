@@ -9,7 +9,7 @@
 //! [reset]: struct.Counter.html#method.reset
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::{env, near_bindgen};
+use near_sdk::{env, near_bindgen, Promise};
 
 near_sdk::setup_alloc!();
 
@@ -48,15 +48,26 @@ impl Counter {
     /// ```bash
     /// near call counter.YOU.testnet increment --accountId donation.YOU.testnet
     /// ```
-    pub fn increment(&mut self) {
+    /*pub fn increment(&mut self, param: i8) {
         // note: adding one like this is an easy way to accidentally overflow
         // real smart contracts will want to have safety checks
         // e.g. self.val = i8::wrapping_add(self.val, 1);
         // https://doc.rust-lang.org/std/primitive.i8.html#method.wrapping_add
-        self.val += 1;
-        let log_message = format!("Increased number to {}", self.val);
+        self.val += param;
+        Promise::new(env::predecessor_account_id()).transfer(1_000_000_000_000_000_000_000_000);
+        let log_message = format!("Increased number by {} to {}", param, self.val);
         env::log(log_message.as_bytes());
         after_counter_change();
+    }*/
+
+    pub fn add(&mut self, op: char, param: i8) {
+       match op {
+           '+' => self.val += param,
+           '-' => self.val += param,
+           _ => env::log("Wrong operation".as_bytes()),
+       }
+
+       env::log("ADD op!".as_bytes());
     }
 
     /// Decrement (subtract from) the counter.
@@ -67,7 +78,7 @@ impl Counter {
     /// ```bash
     /// near call counter.YOU.testnet decrement --accountId donation.YOU.testnet
     /// ```
-    pub fn decrement(&mut self) {
+    /*pub fn decrement(&mut self) {
         // note: subtracting one like this is an easy way to accidentally overflow
         // real smart contracts will want to have safety checks
         // e.g. self.val = i8::wrapping_sub(self.val, 1);
@@ -76,7 +87,7 @@ impl Counter {
         let log_message = format!("Decreased number to {}", self.val);
         env::log(log_message.as_bytes());
         after_counter_change();
-    }
+    }*/
 
     /// Reset to zero.
     pub fn reset(&mut self) {
