@@ -22,6 +22,7 @@ const MIN_DEPOSIT: u128 = 1_000_000_000_000_000_000_000_000;
 pub struct Counter {
     // See more data types at https://doc.rust-lang.org/book/ch03-02-data-types.html
     val: i8, // i8 is signed. unsigned integers are also available: u8, u16, u32, u64, u128
+    users: Vec<String>,
 }
 
 #[near_bindgen]
@@ -39,6 +40,10 @@ impl Counter {
     /// ```
     pub fn get_num(&self) -> i8 {
         return self.val;
+    }
+
+    pub fn get_users(&self) -> Vec<String> {
+        return self.users.clone();
     }
 
     /// Increment the counter.
@@ -70,6 +75,8 @@ impl Counter {
            _ => env::log("Wrong operation".as_bytes()),
        }
 
+       self.users.push(env::predecessor_account_id());
+
        let amount = env::attached_deposit();
        assert!(amount >= MIN_DEPOSIT, "Not enought money amount={}, min={}", amount, MIN_DEPOSIT);
 
@@ -77,6 +84,7 @@ impl Counter {
        if mon_back > 0 {
         Promise::new(env::predecessor_account_id()).transfer(mon_back);
        }
+
 
        env::log("ADD op!".as_bytes());
     }
