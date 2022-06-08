@@ -9,7 +9,7 @@
 //! [reset]: struct.Counter.html#method.reset
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::{env, near_bindgen};
+use near_sdk::{env, near_bindgen, ext_contract, Promise};
 
 near_sdk::setup_alloc!();
 
@@ -21,6 +21,18 @@ pub struct Counter {
     // See more data types at https://doc.rust-lang.org/book/ch03-02-data-types.html
     val: i8, // i8 is signed. unsigned integers are also available: u8, u16, u32, u64, u128
 }
+
+#[ext_contract(counter)]
+pub trait ExtCounter {
+    fn get_num(&self);
+}
+
+
+#[ext_contract(ext_self)]
+pub trait ExtThis {
+    fn on_get_num(&mut self, #[callback] num: i8);
+}
+
 
 #[near_bindgen]
 impl Counter {
@@ -48,16 +60,25 @@ impl Counter {
     /// ```bash
     /// near call counter.YOU.testnet increment --accountId donation.YOU.testnet
     /// ```
-    pub fn increment(&mut self) {
+    pub fn increment(&mut self) -> Promise {
         // note: adding one like this is an easy way to accidentally overflow
         // real smart contracts will want to have safety checks
         // e.g. self.val = i8::wrapping_add(self.val, 1);
         // https://doc.rust-lang.org/std/primitive.i8.html#method.wrapping_add
-        self.val += 1;
-        let log_message = format!("Increased number to {}", self.val);
-        env::log(log_message.as_bytes());
-        after_counter_change();
+        counter::get_num(&"dev-1654679561466-39446052337208", 0, 25_000_000_000_000)
+            .then(ext_self::on_get_num(&env::current_account_id(), 0, 25_000_000_000_000))
+      
     }
+    
+    #[private]
+    pub fn on_get_num(&mut self, #[callback] num: i8) {
+       assert!(num > self.val, "Please increment first counter");
+       self.val += 1;
+       let log_message = format!("Increased number to {}", self.val);
+       env::log(log_message.as_bytes());
+       after_counter_change();
+    }
+
 
     /// Decrement (subtract from) the counter.
     ///
